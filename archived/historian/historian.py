@@ -230,6 +230,8 @@ class Flusher(Thread):
         params = pika.URLParameters(self.RABBITMQ_URL)
         self.connection = pika.BlockingConnection(params)  # default, localhost
         self.channel = self.connection.channel()
+        self.channel.exchange_declare(exchange=self.rabbitmq_exchange,
+                                      exchange_type='fanout')
         plugin.log(f"message queue connected to {params.host}:{params.port}")
 
     def run(self):
