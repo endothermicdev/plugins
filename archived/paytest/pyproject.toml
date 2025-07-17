@@ -1,0 +1,10 @@
+[project]
+name = "paytest"
+version = "0.1.0"
+description = "A plugin to benchmark the performance of the ~pay~ plugin."
+readme = "README.org"
+requires-python = ">=3.10"
+dependencies = [
+    "pyln-client>=24.5",
+    "pyln-proto>=24.5",
+]
