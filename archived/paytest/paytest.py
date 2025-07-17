@@ -141,7 +141,7 @@ def testinvoice(destination, amount=None, **kwargs):
     if amount is not None:
         amount = Millisatoshi(amount).to_btc()
 
-    network = plugin.rpc.listconfigs()['network']
+    network = plugin.rpc.listconfigs()['configs']['network']['value_str']
 
     currency = {
         'bitcoin': 'bc',

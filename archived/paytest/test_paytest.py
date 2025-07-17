@@ -62,8 +62,9 @@ def test_incoming_payment(node_factory):
     inv = l2.rpc.invoice(42, 'lbl', 'desc')['bolt11']
     l1.rpc.pay(inv)
 
-    plugins = [p['name'] for p in l2.rpc.listconfigs()['plugins']]
-    assert 'paytest.py' in plugins
+    plugins = l2.rpc.listconfigs()['configs']['plugin']['values_str']
+    plugin_with_path = os.path.join(os.path.dirname(__file__), "paytest.py")
+    assert plugin_with_path in plugins
 
-    plugins = [p['name'] for p in l1.rpc.listconfigs()['plugins']]
-    assert 'paytest.py' in plugins
+    plugins = l1.rpc.listconfigs()['configs']['plugin']['values_str']
+    assert plugin_with_path in plugins
