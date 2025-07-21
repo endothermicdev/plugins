@@ -16,7 +16,7 @@ def test_start(node_factory):
 def test_invoice(node_factory):
     l1 = node_factory.get_node(options=pluginopt)
     inv = l1.rpc.testinvoice('03' * 33)
-    details = l1.rpc.decodepay(inv['invoice'])
+    details = l1.rpc.decode(inv['invoice'])
     pprint(details)
 
 
@@ -26,7 +26,7 @@ def test_simple_pay(node_factory):
     l1, l2 = node_factory.line_graph(2, opts=pluginopt, wait_for_announce=True)
 
     inv = l1.rpc.testinvoice(destination=l2.info['id'], amount=1)['invoice']
-    details = l1.rpc.decodepay(inv)
+    details = l1.rpc.decode(inv)
     pprint(details)
 
     # Paying the invoice without the reinterpretation from paytest
