@@ -52,7 +52,7 @@ class MyInvoice(Invoice):
             # We can only send down to millisatoshi.
             if amount * 10 ** 12 % 10:
                 raise ValueError(
-                    "Cannot encode {}: too many decimal places".format(self.amount)
+                    f"Cannot encode {self.amount}: too many decimal places"
                 )
 
             amount = self.currency + shorten_amount(amount)
@@ -73,7 +73,7 @@ class MyInvoice(Invoice):
                 data += tagged_bytes("r", rh.to_bytes())
 
         if self.features != 0:
-            b = "{:x}".format(self.features)
+            b = f"{self.features:x}"
             if len(b) % 2 == 1:
                 b = "0" + b
             data += tagged_bytes("9", unhexlify(b))
@@ -85,7 +85,7 @@ class MyInvoice(Invoice):
             # A writer MUST NOT include more than one `d`, `h`, `n` or `x` fields,
             if k in ("d", "h", "n", "x"):
                 if k in tags_set:
-                    raise ValueError("Duplicate '{}' tag".format(k))
+                    raise ValueError(f"Duplicate '{k}' tag")
 
             if k == "r":
                 pubkey, channel, fee, cltv = v
@@ -114,7 +114,7 @@ class MyInvoice(Invoice):
                 data += tagged_bytes("n", v)
             else:
                 # FIXME: Support unknown tags?
-                raise ValueError("Unknown tag {}".format(k))
+                raise ValueError(f"Unknown tag {k}")
 
             tags_set.add(k)
 
@@ -158,9 +158,7 @@ def testinvoice(destination, amount=None, **kwargs):
         currency=currency,
     )
     inv.pubkey = PUBKEY
-    inv.tags.append(
-        ("d", "Test invoice for {destination}".format(destination=destination))
-    )
+    inv.tags.append(("d", f"Test invoice for {destination}"))
 
     # Payment_secret
     inv.tags.append(("s", os.urandom(32)))
@@ -185,9 +183,7 @@ def testinvoice(destination, amount=None, **kwargs):
 
     return {
         "invoice": inv.encode(PRIVKEY.serializeCompressed().hex()),
-        "attention": "The invoice is destined for {}, but forced through {} which will process it instead. So don't worry if decoding the invoice returns a different destination than you'd expect.".format(
-            PUBKEY.serializeCompressed().hex(), destination
-        ),
+        "attention": f"The invoice is destined for {PUBKEY.serializeCompressed().hex()}, but forced through {destination} which will process it instead. So don't worry if decoding the invoice returns a different destination than you'd expect.",
     }
 
 
@@ -233,18 +229,14 @@ def timeout(plugin, secret):
     if parts is None:
         return
 
-    print("Timing out payment with secret={secret}".format(secret=secret))
+    print(f"Timing out payment with secret={secret}")
     for p in parts:
         p[0].set_result({"result": "fail", "failure_onion": wrap_error(p[4], b"0017")})
 
 
 @plugin.async_hook("htlc_accepted")
 def on_htlc_accepted(onion, htlc, request, plugin, *args, **kwargs):
-    print(
-        "Got an incoming HTLC for {payment_hash}".format(
-            payment_hash=htlc["payment_hash"]
-        )
-    )
+    print(f"Got an incoming HTLC for {htlc['payment_hash']}")
     # If this is not a test payment, pass it on
     if 'short_channel_id' not in onion or onion["short_channel_id"] != "1x1x1":
         return request.set_result({"result": "continue"})
@@ -296,7 +288,7 @@ def on_htlc_accepted(onion, htlc, request, plugin, *args, **kwargs):
 
     parts = plugin.pending[ps]
     received = sum([p[2] for p in parts])
-    print("Received {}/{} with {} parts".format(received, total, len(parts)))
+    print(f"Received {received}/{total} with {len(parts)} parts")
 
     if received != total:
         return
